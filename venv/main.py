@@ -10,7 +10,7 @@ class Habit:
         self.streak = 0
         self.last_completed_at = None
 
-class Model:
+class HabitModel:
     def __init__(self):
         self.conn = sqlite3.connect('habits.db')
         self.conn.execute("CREATE TABLE IF NOT EXISTS habits (name text, created_at date, frequency int, is_completed int, streak int, last_completed_at text)")
@@ -23,8 +23,12 @@ class Model:
         cursor = self.conn.execute("SELECT * FROM habits")
         return [Habit(row[0], row[1] == 1) for row in cursor]
 
+    def delete_habit(self, habit):
+        self.conn.execute("DELETE FROM habits WHERE name = ?", (habit.name,))
+        self.conn.commit()
+
     def complete_habit(self, habit):
-        cursor = self.conn.execute("SELECT last_completed_at FROM habits WHERE habit = ?", (habit.name,))
+        cursor = self.conn.execute("SELECT last_completed_at FROM habits WHERE name = ?", (habit.name,))
         last_completed_at_str = cursor.fetchone()[0]
         today_str = datetime.datetime.now().strftime("%Y-%m-%d")
         if last_completed_at_str == today_str:
@@ -36,7 +40,7 @@ class Model:
             streak = habit.streak + 1
         else:
             streak = 1
-        self.conn.execute("UPDATE habits SET completed = 1, streak = ?, last_completed_at = ? WHERE habit = ?",
+        self.conn.execute("UPDATE habits SET is_completed = 1, streak = ?, last_completed_at = ? WHERE name = ?",
                           (streak, today_str, habit.name))
         self.conn.commit()
 
@@ -44,24 +48,31 @@ class Model:
         self.conn.execute("DROP TABLE habits")
         self.conn.commit()
 
-class View:
+class HabitView:
     def show_habits(self, habits):
         for habit in habits:
             print("[{}] {}".format("X" if habit.completed else " ", habit.name))
 
-    def get_habit_info_from_user(self):
+    def get_new_habit_info_from_user(self):
         name = input("Enter the name of the habit: ")
         frequency = input("Enter the frequency of the habit (e.g. daily, weekly, monthly): ")
         return Habit(name, frequency)
 
-class Controller:
+    def get_habit_from_user(self):
+        name = input("Enter the name of the habit: ")
+        return Habit(name)
+
+class HabitController:
     def __init__(self):
-        self.model = Model()
-        self.view = View()
+        self.model = HabitModel()
+        self.view = HabitView()
 
     def add_habit(self):
-        habit = self.view.get_habit_info_from_user()
+        habit = self.view.get_new_habit_info_from_user()
         self.model.add_habit(habit)
+
+    def delete_habit(self, habit):
+        self.model.delete_habit(habit)
 
     def show_habits(self):
         habits = self.model.get_habits()
@@ -71,12 +82,13 @@ class Controller:
         self.model.complete_habit(habit)
 
 if __name__ == '__main__':
-    controller = Controller()
+    controller = HabitController()
     while True:
         print("1. Add habit")
         print("2. Show habits")
         print("3. Complete habit")
-        print("4. Clear database")
+        print("4. Delete habit")
+        print("5. Clear database")
         choice = int(input("Enter your choice: "))
         if choice == 1:
             controller.add_habit()
@@ -90,6 +102,13 @@ if __name__ == '__main__':
             if 0 <= index < len(habits):
                 controller.complete_habit(habits[index])
         elif choice == 4:
+            habits = controller.model.get_habits()
+            for i, habit in enumerate(habits):
+                print("{}. {}".format(i + 1, habit.name))
+            index = int(input("Enter the number of the habit to delete: ")) - 1
+            if 0 <= index < len(habits):
+                controller.delete_habit(habits[index])
+        elif choice == 5:
             controller.model.clear_database()
         else:
             break
