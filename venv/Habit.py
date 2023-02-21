@@ -7,5 +7,6 @@ class Habit:
         self.created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.frequency = frequency
         self.is_completed = False
-        self.streak = 0
+        self.ongoing_streak = 0
+        self.longest_streak = 0
         self.last_completed_at = None

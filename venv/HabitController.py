@@ -1,6 +1,7 @@
 import HabitModel
 import HabitView
 import Habit
+from Analytics import *
 
 
 class HabitController:
@@ -16,8 +17,8 @@ class HabitController:
         self.model.delete_habit(Habit)
 
     def show_habits(self):
-        habits = self.model.get_habits()
-        self.view.show_habits(habits)
+        # habits = self.model.get_habits()
+        display_table_habits()
 
     def complete_habit(self, Habit):
         self.model.complete_habit(Habit)

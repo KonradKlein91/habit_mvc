@@ -2,9 +2,6 @@ import Habit
 
 
 class HabitView:
-    def show_habits(self, habits):
-        for Habit in habits:
-            print("[{}] {}".format("X" if Habit.completed else " ", Habit.name))
 
     def get_new_habit_info_from_user(self):
         name = input("Enter the name of the habit: ")
