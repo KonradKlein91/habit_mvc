@@ -13,10 +13,6 @@ class HabitModel:
         self.conn.execute("INSERT INTO habits (name, created_at, frequency, is_completed, ongoing_streak, longest_streak, last_completed_at) VALUES (?, ?, ?, ?, ?, ?, ?)", (habit.name, habit.created_at, habit.frequency, habit.is_completed, habit.ongoing_streak, habit.longest_streak, habit.last_completed_at))
         self.conn.commit()
 
-    def get_habits(self):
-        cursor = self.conn.execute("SELECT * FROM habits")
-        return [Habit.Habit(row[0], row[1] == 1) for row in cursor]
-
     def delete_habit(self, habit):
         self.conn.execute("DELETE FROM habits WHERE name = ?", (habit.name,))
         self.conn.commit()
@@ -63,9 +59,4 @@ class HabitModel:
 
         self.conn.execute("UPDATE habits SET is_completed = 1, ongoing_streak = ?, longest_streak = ?, last_completed_at = ? WHERE name = ?",
                           (ongoing_streak, longest_streak, today_str, habit.name))
-        self.conn.commit()
-
-
-    def clear_database(self):
-        self.conn.execute("DROP TABLE habits")
         self.conn.commit()

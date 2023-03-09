@@ -46,3 +46,7 @@ def show_habit_streak():
     conn.close()
     print(tabulate(habits, headers=["Name", "Created at", "Frequency", "Completed", "Ongoing streak", "Longest streak",
                                     "Last completed at"], tablefmt="grid"))
+
+def clear_database(self):
+    self.conn.execute("DROP TABLE habits")
+    self.conn.commit()
