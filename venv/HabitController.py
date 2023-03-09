@@ -8,11 +8,24 @@ class HabitController:
         self.model = HabitModel()
 
     def add_habit(self, Habit):
-        # Habit = self.view.get_new_habit_info_from_user()
         self.model.add_habit(Habit)
 
-    def delete_habit(self, Habit):
-        self.model.delete_habit(Habit)
+    def delete_habit(self):
+        rows = self.model.get_habits()
+        habits = []
+        for row in rows:
+            habit = Habit.Habit(row[0], row[1])
+            habits.append(habit)
+
+        for i, habit in enumerate(habits):
+            print("{}. {}".format(i + 1, habit.name))
+
+        index = int(input("enter the number of the habit to delete: ")) - 1
+        print(index)
+        print(habits[index].name)
+
+        if 0 <= index < len(habits):
+            self.model.delete_habit(habits[index])
 
     def show_habits(self):
         # habits = self.model.get_habits()
